@@ -8,9 +8,6 @@ The codebase provides an interactive web interface that simulates a digital luxu
 
 This code is provided as open-source exploratory support to facilitate academic transparency, replication, and early-stage experimentation. It serves as a proof-of-concept prototype rather than a scalable, production-ready enterprise solution.
 
-## Persistent Identifier
-
-DOI: [Insert Zenodo or Open Science Framework DOI link here prior to final manuscript submission]
 
 ## Prerequisites and Configuration
 
