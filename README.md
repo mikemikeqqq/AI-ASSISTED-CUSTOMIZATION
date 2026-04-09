@@ -7,8 +7,10 @@ This repository contains the front-end implementation of the AI-assisted customi
 The codebase provides an interactive web interface that simulates a digital luxury customization experience. It integrates two distinct artificial intelligence models to process consumer input and generate unique visual outputs. The system first utilizes a Large Language Model to refine consumer text prompts into standardized design instructions, which are subsequently processed by a latent text-to-image diffusion model to generate the final customization artifact.
 
 This code is provided as open-source exploratory support to facilitate academic transparency, replication, and early-stage experimentation. It serves as a proof-of-concept prototype rather than a scalable, production-ready enterprise solution.
+## Persistent Identifier
 
-
+ DOI: 10.5281/zenodo.19479056 
+ 
 ## Prerequisites and Configuration
 
 To deploy and execute this prototype locally, the following external API dependencies must be configured:
