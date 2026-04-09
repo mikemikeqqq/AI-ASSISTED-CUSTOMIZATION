@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumine Atelier AI Customization Prototype</title>
+    <style>
+        :root {
+            --primary-color: #1a1a1a;
+            --secondary-color: #9a8a78;
+            --background-color: #f8f8f8;
+            --text-color: #333333;
+            --border-color: #e0e0e0;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--background-color);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .customization-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: start;
+            background-color: white;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8em;
+            font-weight: 500;
+            color: var(--primary-color);
+            margin: 0 0 20px 0;
+        }
+
+        .design-description {
+            font-size: 0.9em;
+            line-height: 1.8;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9em;
+            resize: vertical;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 2px;
+            font-size: 0.9em;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #000;
+        }
+
+        .loading {
+            display: none;
+            color: var(--secondary-color);
+            font-size: 0.9em;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        .preview-section {
+            background-color: #f9f9f9;
+            padding: 40px;
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .tshirt-container {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tshirt-base {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .design-overlay {
+            position: absolute;
+            width: 210px;
+            height: 210px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            object-fit: contain;
+            mix-blend-mode: multiply;
+            background: none !important;
+            filter: contrast(1.1) brightness(0.95);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        #thankYouPage {
+            text-align: center;
+            padding: 50px;
+            background-color: white;
+            max-width: 600px;
+            margin: 0 auto;
+            border-radius: 4px;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+        }
+
+        @media screen and (max-width: 768px) {
+            .customization-area {
+                grid-template-columns: 1fr;
+                gap: 30px;
+                padding: 20px;
+            }
+            
+            .tshirt-container {
+                height: 400px;
+            }
+            
+            .design-overlay {
+                width: 150px;
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="aiCustomization" class="customization-area">
+        <div class="input-section">
+            <div>
+                <h2 class="section-title">AI-Powered Customization</h2>
+                
+                <p class="design-description">
+                    Create unique designs using AI technology. Simply describe your creative ideas, 
+                    and our AI will automatically generate a unique pattern for your T-shirt.
+                </p>
+                
+                <textarea id="prompt" 
+                    placeholder="Describe the design elements you want, e.g., 'elegant abstract floral pattern' or 'modern minimalist geometric shapes'"></textarea>
+                
+                <button onclick="generateDesign()">Create Design</button>
+                
+                <div id="loading" class="loading">
+                    Creating your exclusive design, the customization process takes about 30 seconds, please wait...
+                </div>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <h2 class="section-title">Preview Effect</h2>
+            
+            <div class="tshirt-container">
+                <img src="https://via.placeholder.com/400x600/f0f0f0/cccccc?text=T-Shirt+Template" alt="T-shirt Template" class="tshirt-base">
+                <img id="aiDesignOverlay" class="design-overlay" style="display: none;">
+            </div>
+            
+            <button id="aiNextPageBtn" style="display: none;" onclick="finishExperience()">
+                Complete Experience
+            </button>
+        </div>
+    </div>
+
+    <div id="thankYouPage" class="hidden">
+        <h2 class="section-title">Customization Complete</h2>
+        <p class="design-description">Thank you for participating in this experience.</p>
+    </div>
+
+    <script>
+        const DOUBAO_API_KEY = 'YOUR_DOUBAO_API_KEY_HERE';
+        const DOUBAO_API_ENDPOINT = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+        const SD_API_ENDPOINT = 'https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image';
+        const SD_API_KEY = 'YOUR_STABILITY_AI_API_KEY_HERE';
+
+        async function generateDesign() {
+            const prompt = document.getElementById('prompt').value;
+            const loading = document.getElementById('loading');
+            const designOverlay = document.getElementById('aiDesignOverlay');
+            const nextPageBtn = document.getElementById('aiNextPageBtn');
+
+            if (!prompt) {
+                alert('Please enter a design description');
+                return;
+            }
+
+            loading.style.display = 'block';
+            nextPageBtn.style.display = 'none';
+            
+            try {
+                const designSuggestion = await getDesignSuggestion(prompt);
+                console.log('Design suggestion received:', designSuggestion);
+                
+                const imageBase64 = await generateImage(designSuggestion);
+                console.log('Image generation successful');
+                
+                designOverlay.src = `data:image/png;base64,${imageBase64}`;
+                designOverlay.style.display = 'block';
+                
+                nextPageBtn.style.display = 'block';
+            } catch (error) {
+                console.error('Design generation error:', error);
+                alert('Error generating design: ' + error.message);
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        async function getDesignSuggestion(prompt) {
+            try {
+                const response = await fetch(DOUBAO_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${DOUBAO_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        model: 'doubao-1-5-thinking-pro-250415',
+                        messages: [
+                            {
+                                role: 'system',
+                                content: 'You are a professional T-shirt pattern designer. Based on user descriptions, generate a concise English design prompt. Requirements: 1. Output only English description, no other content 2. Keep description concise, under 100 words 3. Use simple English vocabulary 4. Ensure design is suitable for T-shirt display 5. Emphasize the design should be an independent pattern without background'
+                            },
+                            {
+                                role: 'user',
+                                content: `Please design a T-shirt pattern for me, requiring the pattern to be independent without background: ${prompt}`
+                            }
+                        ]
+                    })
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Doubao API error response:', errorText);
+                    throw new Error(`Doubao API request failed: ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Doubao API response:', data);
+                const suggestion = data.choices[0].message.content;
+                return cleanPrompt(suggestion);
+            } catch (error) {
+                console.error('Error getting design suggestion:', error);
+                throw error;
+            }
+        }
+
+        async function generateImage(prompt) {
+            try {
+                const enhancedPrompt = prompt + ", ((transparent background)), ((no background)), ((clean white background)), ((sticker)), ((vector art)), ((clean edges)), high quality, detailed, sharp focus";
+                
+                const response = await fetch(SD_API_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${SD_API_KEY}`
+                    },
+                    body: JSON.stringify({
+                        text_prompts: [
+                            {
+                                text: enhancedPrompt,
+                                weight: 1
+                            },
+                            {
+                                text: "background, grey background, noise, grain, textured, canvas, messy, blurry, low quality",
+                                weight: -2
+                            }
+                        ],
+                        cfg_scale: 12,
+                        steps: 50,
+                        width: 1024,
+                        height: 1024,
+                        samples: 1,
+                        style_preset: "digital-art",
+                        image_format: "png",
+                        sampler: "DDIM"
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Image generation failed');
+                }
+
+                const result = await response.json();
+                if (result.artifacts && result.artifacts.length > 0) {
+                    return result.artifacts[0].base64;
+                } else {
+                    throw new Error('Failed to get generated image');
+                }
+            } catch (error) {
+                console.error('Error generating image:', error);
+                throw new Error('Image generation failed: ' + error.message);
+            }
+        }
+
+        function cleanPrompt(prompt) {
+            let cleaned = prompt.trim().replace(/\s+/g, ' ');
+            if (cleaned.length > 2000) {
+                cleaned = cleaned.substring(0, 1997) + '...';
+            }
+            if (!cleaned) {
+                cleaned = 'A simple, minimalist design';
+            }
+            return cleaned;
+        }
+
+        function finishExperience() {
+            document.getElementById('aiCustomization').classList.add('hidden');
+            document.getElementById('thankYouPage').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
